@@ -1,0 +1,26 @@
+# Entorno y Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Caché de voz generada
+cache/
+
+# Modelos (se regeneran: 2_train_model.py / descarga automática de MediaPipe)
+models/*.joblib
+models/mediapipe/
+
+# Datos de captura: contienen landmarks corporales/faciales de personas (datos personales)
+data/raw/
+data/dataset.npz
+
+# Avatar: el .glb puede tener licencia propia; quita esta línea si puedes publicarlo
+static/*.glb
+
+# Herramientas locales / SO
+.claude/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
