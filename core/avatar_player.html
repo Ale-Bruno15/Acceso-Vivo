@@ -502,10 +502,9 @@ function frame(now) {
 }
 
 async function init() {
-  try {
-    if (P.glbUrl) rig = await loadGLB(P.glbUrl);
-  } catch (e) {
-    console.warn('[avatar] GLB no disponible, usando maniquí:', e);
+  for (const url of (P.glbUrls || [])) {          // rutas distintas en local y en Streamlit Cloud
+    try { rig = await loadGLB(url); break; }
+    catch (e) { console.warn('[avatar] no se pudo cargar', url, e); }
   }
   if (!rig) {
     const m = buildMannequin(); scene.add(m.root);

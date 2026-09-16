@@ -57,7 +57,7 @@ def render_avatar(script: dict | None = None, height: int = 640) -> None:
     payload = {
         "lexicon": load_lexicon(),
         "script": script,
-        "glbUrl": config.AVATAR_GLB_URL if config.AVATAR_GLB.exists() else None,
+        "glbUrls": config.AVATAR_GLB_URLS if config.AVATAR_GLB.exists() else None,
     }
     data = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
     html = _TEMPLATE.read_text(encoding="utf-8").replace("__PAYLOAD__", data)

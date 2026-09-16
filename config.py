@@ -13,7 +13,11 @@ MODEL_PATH = MODELS_DIR / "lsd_classifier.joblib"
 MP_MODELS_DIR = MODELS_DIR / "mediapipe"
 TTS_CACHE_DIR = ROOT / "cache" / "tts"
 AVATAR_GLB = ROOT / "static" / "avatar.glb"
-AVATAR_GLB_URL = "/app/static/avatar.glb"  # servido por enableStaticServing
+# Streamlit sirve ./static/ con prefijos distintos segun el entorno y ninguno acepta el del otro:
+# local -> /app/static/...   Streamlit Cloud -> /~/+/app/static/...
+# Se emiten ambos y el navegador usa el que responda (la ruta equivocada devuelve HTML, no el archivo).
+STATIC_PREFIXES = ("/app/static", "/~/+/app/static")
+AVATAR_GLB_URLS = [f"{prefix}/avatar.glb" for prefix in STATIC_PREFIXES]
 
 # --- Señas del cliente (entrada) --------------------------------------------
 SIGNS = ["deposito", "retiro", "ayuda"]
