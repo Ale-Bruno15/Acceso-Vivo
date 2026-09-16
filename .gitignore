@@ -15,8 +15,6 @@ models/mediapipe/
 data/raw/
 data/dataset.npz
 
-# Avatar: el .glb puede tener licencia propia; quita esta línea si puedes publicarlo
-static/*.glb
 
 # Herramientas locales / SO
 .claude/
@@ -24,6 +22,3 @@ static/*.glb
 .idea/
 .DS_Store
 Thumbs.db
-
-# Logo de la entidad: marca de un tercero, no se publica en el repositorio
-static/logo_banco.*
