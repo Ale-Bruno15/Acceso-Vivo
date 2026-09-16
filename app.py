@@ -342,11 +342,10 @@ def panel_camara(avatar_slot):
 
 
 # ───────────────────────── Layout ─────────────────────────
-# Logo de la entidad: se muestra si colocas el archivo oficial en static/ (no se incluye en el repo).
+# Logo de la entidad: se muestra si el archivo esta en static/. Ruta relativa: vale en local y en la nube.
 _logo = next((f for f in ("logo_banco.svg", "logo_banco.png", "logo_banco.jpg", "logo_banco.jpeg",
                           "logo_banco.webp") if (config.ROOT / "static" / f).exists()), None)
-LOGO_BANCO = (f'<img src="/app/static/{_logo}" alt="Logo de la entidad bancaria" '
-              f"onerror=\"this.onerror=null;this.src='/~/+/app/static/{_logo}'\">" if _logo else
+LOGO_BANCO = (f'<img src="app/static/{_logo}" alt="Logo de la entidad bancaria">' if _logo else
               '<div class="falta">Coloca el logo oficial en <b>static/logo_banco.png</b> '
               '(o .svg) y recarga la página.</div>')
 
