@@ -26,55 +26,107 @@ st.set_page_config(page_title="AccesoVivo · Ventanilla inclusiva", page_icon="�
 # ───────────────────────── Estilos (réplica del diseño AccesoVivo) ─────────────────────────
 st.markdown("""
 <style>
+:root { --navy-900:#001B4A; --navy-800:#012C6B; --navy:#124796; --blue:#1E7FD8; --blue-300:#4DA5E1;
+        --cyan:#00A3C8; --ink:#14253D; --muted:#6A7C93; --line:#D8E2EC; --bg-soft:#F2F6FA;
+        --card-h: 88px;   /* alto de tarjeta: tarjeta, contenedor y botón comparten este valor */
+        /* Degradados del fondo (colores de las plantillas SDP). --g-alpha controla los tres a la vez. */
+        --g-blue: 30,127,216; --g-orange: 237,125,49; --g-green: 112,173,71; --g-alpha: .14; }
 #MainMenu, header[data-testid="stHeader"], footer, [data-testid="stToolbar"] { display:none !important; }
-.block-container { max-width: 1320px; padding-top: 1.6rem; padding-bottom: 1rem; }
+/* 98px = 34 de la franja + 64 de la cabecera, para que el contenido no quede debajo de ellas. */
+.block-container { max-width: 1320px; padding-top: 98px !important; padding-bottom: 1rem; }
+/* Fondo blanco con tres resplandores que nacen en las esquinas y se disuelven hacia el centro. */
+[data-testid="stAppViewContainer"], .stApp {
+  background-color: #FFFFFF;
+  background-image:
+    radial-gradient(ellipse 78% 68% at 0% 0%,     rgba(var(--g-blue),   var(--g-alpha)) 0%, rgba(var(--g-blue),   0) 66%),
+    radial-gradient(ellipse 72% 62% at 100% 0%,   rgba(var(--g-orange), var(--g-alpha)) 0%, rgba(var(--g-orange), 0) 64%),
+    radial-gradient(ellipse 82% 68% at 100% 100%, rgba(var(--g-green),  var(--g-alpha)) 0%, rgba(var(--g-green),  0) 68%);
+  background-attachment: fixed; background-repeat: no-repeat; }
 html, body, [class*="css"] { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; }
 iframe { border: 0 !important; border-radius: 24px; }
 
-.av-brand { text-align:center; margin: 0 0 1.4rem; }
-.av-logo { font-size: 30px; font-weight: 300; letter-spacing: .32em; color:#3A3A3A; }
-.av-tag  { font-size: 11px; letter-spacing: .34em; color:#A09A99; margin-top: 2px; }
-.av-section { font-size: 13px; font-weight: 600; letter-spacing: .3em; color:#3A3A3A; margin: 1.2rem 0 .9rem; }
-.av-lead { color:#6F6866; font-size: 14px; line-height: 1.5; text-align:center; margin: 0 auto .8rem; max-width: 560px; }
+/* Cromo de portal bancario: franja de secciones + cabecera blanca con menú y botón de acceso.
+   Van fijas al borde de la ventana: el contenedor de Streamlit no está centrado respecto al viewport
+   (tiene relleno propio), así que los trucos de "ancho completo" dejaban las barras corridas. */
+.av-full { position: fixed; left: 0; width: 100%; z-index: 1000; }
+.av-pad { padding: 0 max(24px, calc(50vw - 660px)); }
+.av-topbar { top: 0; display:flex; align-items:center; height: 34px;
+  background: linear-gradient(90deg, var(--navy-800) 0%, var(--navy) 45%, var(--cyan) 100%); }
+.av-topbar span { font-size: 11px; letter-spacing: .1em; color: rgba(255,255,255,.85); padding: 0 16px; line-height: 34px; }
+.av-topbar span.on { background:#FFFFFF; color: var(--navy-800); font-weight: 600; }
+.av-header { top: 34px; display:flex; align-items:center; justify-content:space-between; height: 64px;
+  background:#FFFFFF; border-bottom: 1px solid var(--line); }
+.av-brandmark { display:flex; align-items:center; gap: 11px; }
+.av-brandmark .n { font-size: 19px; font-weight: 600; letter-spacing: .14em; color: var(--navy-800); line-height: 1; }
+.av-brandmark .t { font-size: 9px; letter-spacing: .22em; color: var(--muted); margin-top: 4px; }
+.av-nav { display:flex; align-items:center; gap: 22px; }
+.av-nav a { font-size: 13px; letter-spacing: .02em; color: var(--navy-800); text-decoration:none; cursor:default; }
+.av-nav a.cy { color: var(--cyan); }
+.av-nav .sep { width: 1px; height: 24px; background: var(--line); }
+.av-access { background: var(--navy-800); color:#FFFFFF; font-size: 13px; letter-spacing: .07em; padding: 11px 24px; }
+.av-page { margin: 20px 0 4px; }
+.av-page img { height: 48px; width: auto; display: block; }
+.av-page .line { height: 3px; width: 56px; background: var(--cyan); margin-top: 12px; }
+.av-page .falta { display:inline-block; padding: 12px 18px; border: 1px dashed var(--line);
+  border-radius: 8px; font-size: 12.5px; color: var(--muted); background: rgba(255,255,255,.6); }
+.av-section { font-size: 13px; font-weight: 600; letter-spacing: .3em; color:var(--navy-800); margin: 1.2rem 0 1.1rem; }
+.av-lead { color:var(--muted); font-size: 14px; line-height: 1.5; text-align:center; margin: 0 auto .8rem; max-width: 560px; }
 
 /* Tarjetas de opción: el botón real queda invisible encima de la tarjeta */
-div[class*="st-key-opt_"] { position: relative; }
-.av-card { display:flex; align-items:center; gap:16px; padding: 20px 22px; border-radius: 16px;
-  background: linear-gradient(100deg, #FFD3BC 0%, #FFC9C4 55%, #FFC2CA 100%);
-  box-shadow: 0 10px 24px rgba(255,150,140,.25); transition: transform .15s, box-shadow .15s; position: relative; }
-div[class*="st-key-opt_"]:hover .av-card { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(255,150,140,.34); }
-.av-icon { flex: 0 0 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,.78);
-  display:flex; align-items:center; justify-content:center; color:#4A3B39; }
-.av-title { font-size: 15.5px; font-weight: 500; letter-spacing: .03em; color:#2F2A29; text-transform: uppercase; }
-.av-desc { font-size: 12.5px; color:#6B5A57; margin-top: 3px; }
-.av-badge { position:absolute; top:10px; right:12px; background:#3B3B3B; color:#fff; font-size:10px;
+div[class*="st-key-opt_"] { position: relative; margin-top: 0 !important; margin-bottom: 22px !important; }
+/* El hueco entre tarjetas lo pone solo el margin-bottom de arriba. Streamlit envuelve cada tarjeta en un
+   stLayoutWrapper y el bloque que los contiene tiene gap:16px, que se sumaba a la separación: se anula. */
+div:has(> div > div[class*="st-key-opt_"]),
+div:has(> div[class*="st-key-opt_"]) { gap: 0 !important; row-gap: 0 !important; }
+/* Las cajas internas de Streamlit traen margen propio: desplazan la tarjeta 8px hacia abajo (el botón
+   invisible dejaba de cubrirla) y sumaban 16px extra a la separación. */
+div[class*="st-key-opt_"] [data-testid="stElementContainer"],
+div[class*="st-key-opt_"] [data-testid="stMarkdown"],
+div[class*="st-key-opt_"] [data-testid="stMarkdown"] > div,
+div[class*="st-key-opt_"] [data-testid="stMarkdownContainer"] { margin: 0 !important; padding: 0 !important; }
+/* Streamlit mide sus cajas internas 16px más bajas que la tarjeta; en vez de pelear con esas clases,
+   tarjeta, contenedor y botón invisible comparten --card-h para que el área de clic cubra toda la tarjeta. */
+div[class*="st-key-opt_"], div[class*="st-key-opt_"] [data-testid="stElementContainer"],
+div[class*="st-key-opt_"] [data-testid="stMarkdown"], div[class*="st-key-opt_"] [data-testid="stMarkdown"] > div {
+  height: var(--card-h) !important; min-height: var(--card-h); flex: 0 0 auto !important; gap: 0 !important; }
+.av-card { display:flex; align-items:center; gap:16px; padding: 18px 22px; border-radius: 16px; margin: 0;
+  height: var(--card-h); box-sizing: border-box;
+  background: linear-gradient(100deg, var(--navy-800) 0%, var(--navy) 52%, var(--blue) 100%);
+  box-shadow: 0 10px 24px rgba(1,44,107,.28); transition: transform .15s, box-shadow .15s; position: relative; }
+div[class*="st-key-opt_"]:hover .av-card { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(1,44,107,.38); }
+.av-icon { flex: 0 0 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,.16);
+  display:flex; align-items:center; justify-content:center; color:#FFFFFF; }
+.av-title { font-size: 15.5px; font-weight: 500; letter-spacing: .03em; color:#FFFFFF; text-transform: uppercase; }
+.av-desc { font-size: 12.5px; color: rgba(255,255,255,.82); margin-top: 3px; }
+.av-badge { position:absolute; top:10px; right:12px; background:#FFFFFF; color:var(--navy); font-size:10px;
   font-weight:600; padding: 2px 8px; border-radius: 999px; }
-div[class*="st-key-btn_"] { position: absolute !important; inset: 0; z-index: 3; margin: 0 !important;
-  width: 100% !important; height: 100% !important; }
+div[class*="st-key-btn_"] { position: absolute !important; top: 0; left: 0; z-index: 3; margin: 0 !important;
+  width: 100% !important; height: var(--card-h) !important; }
 div[class*="st-key-btn_"] .stButton, div[class*="st-key-btn_"] .stButton > div,
 div[class*="st-key-btn_"] button { width: 100% !important; height: 100% !important; }
 div[class*="st-key-btn_"] button { opacity: 0; cursor: pointer; }
 
 /* Cámara */
-.av-cam { background:#1A1A1A; border-radius: 18px; aspect-ratio: 4/3; display:flex; flex-direction:column;
-  align-items:center; justify-content:center; color:#F2F2F2; font-size: 14px; gap: 14px; }
-.av-spin { width: 26px; height: 26px; border: 2.5px solid rgba(255,255,255,.25); border-top-color:#fff;
+.av-cam { background:var(--navy-900); border-radius: 18px; aspect-ratio: 4/3; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; color:#EAF2FA; font-size: 14px; gap: 14px; }
+.av-spin { width: 26px; height: 26px; border: 2.5px solid rgba(255,255,255,.2); border-top-color:var(--cyan);
   border-radius: 50%; animation: avspin 0.9s linear infinite; }
 @keyframes avspin { to { transform: rotate(360deg); } }
 div[class*="st-key-camframe"] img { border-radius: 18px; }
-.av-foot { text-align:center; font-size: 12px; color:#9A9392; margin-top: .4rem; }
+.av-foot { text-align:center; font-size: 12px; color:var(--muted); margin-top: .4rem; }
 
 /* Resultado de traducción */
-.av-result { border-radius: 16px; padding: 16px 20px; background:#FFF7F5; border: 1px solid #F8DCD6; }
-.av-result .k { font-size: 11px; letter-spacing: .24em; color:#A0908D; }
-.av-result .v { font-size: 34px; font-weight: 600; color:#C0645A; line-height: 1.2; margin-top: 4px; }
-.av-result .m { font-size: 14px; color:#5E5553; margin-top: 2px; }
+.av-result { border-radius: 16px; padding: 16px 20px; background:var(--bg-soft); border: 1px solid var(--line); }
+.av-result .k { font-size: 11px; letter-spacing: .24em; color:var(--muted); }
+.av-result .v { font-size: 34px; font-weight: 600; color:var(--navy); line-height: 1.2; margin-top: 4px; }
+.av-result .m { font-size: 14px; color:#3F5169; margin-top: 2px; }
 .av-conf { display:inline-block; font-size: 11px; padding: 2px 9px; border-radius: 999px; background:#fff;
-  color:#8A6F6A; border: 1px solid #F1D5CF; margin-left: 8px; vertical-align: middle; }
-.av-hist { font-size: 13px; color:#6F6866; margin-top: .6rem; }
-.av-easy li { font-size: 22px; line-height: 1.6; color:#2F2A29; }
-.av-ticket { border-radius: 16px; padding: 16px 20px; background:#F4FBF6; border:1px solid #CFEBD8; color:#2E5B3C; }
-div.st-key-back button { background: none; border: 0; color:#A0908D; padding: 0; font-size: 13px; }
+  color:var(--navy); border: 1px solid var(--line); margin-left: 8px; vertical-align: middle; }
+.av-hist { font-size: 13px; color:var(--muted); margin-top: .6rem; }
+.av-easy li { font-size: 22px; line-height: 1.6; color:var(--ink); }
+.av-ticket { border-radius: 16px; padding: 16px 20px; background:#EAF4FB; border:1px solid #BFDCF0; color:#0B4E7E; }
+div.st-key-back button { background: none; border: 0; color:var(--muted); padding: 0; font-size: 13px; }
+div.st-key-back button:hover { color:var(--navy); }
 </style>
 """, unsafe_allow_html=True)
 
@@ -290,8 +342,30 @@ def panel_camara(avatar_slot):
 
 
 # ───────────────────────── Layout ─────────────────────────
-st.markdown('<div class="av-brand"><div class="av-logo">AccesoVivo</div>'
-            '<div class="av-tag">INCLUSIÓN MULTIMODAL</div></div>', unsafe_allow_html=True)
+# Logo de la entidad: se muestra si colocas el archivo oficial en static/ (no se incluye en el repo).
+_logo = next((f for f in ("logo_banco.svg", "logo_banco.png", "logo_banco.jpg", "logo_banco.jpeg",
+                          "logo_banco.webp") if (config.ROOT / "static" / f).exists()), None)
+LOGO_BANCO = (f'<img src="/app/static/{_logo}" alt="Logo de la entidad bancaria">' if _logo else
+              '<div class="falta">Coloca el logo oficial en <b>static/logo_banco.png</b> '
+              '(o .svg) y recarga la página.</div>')
+
+LOGO = ('<svg width="34" height="34" viewBox="0 0 24 24" fill="none">'
+        '<rect width="24" height="24" rx="5" fill="#012C6B"/>'
+        '<path d="M7 11.2a1 1 0 0 1 2 0V7.4a1 1 0 0 1 2 0v3.4m0-1.1a1 1 0 0 1 2 0v1.1m0-.7a1 1 0 0 1 2 0v3.3'
+        'c0 2.2-1.7 3.9-3.9 3.9S7.2 16.3 7.2 14.2L7 11.2z" stroke="#00A3C8" stroke-width="1.25" '
+        'stroke-linecap="round" stroke-linejoin="round"/></svg>')
+
+st.markdown(
+    f'<div class="av-full av-topbar av-pad"><span class="on">CIUDADANO</span>'
+    f'<span>SUCURSAL</span><span>SOPORTE</span></div>'
+    f'<div class="av-full av-header av-pad">'
+    f'<div class="av-brandmark">{LOGO}<div><div class="n">AccesoVivo</div>'
+    f'<div class="t">INCLUSIÓN MULTIMODAL</div></div></div>'
+    f'<div class="av-nav"><a>VENTANILLA</a><a>SERVICIOS</a><a>AYUDA</a><div class="sep"></div>'
+    f'<a class="cy">ACCESIBILIDAD</a><a class="cy">INTÉRPRETE</a>'
+    f'<div class="av-access">ACCEDER</div></div></div>'
+    f'<div class="av-page">{LOGO_BANCO}<div class="line"></div></div>',
+    unsafe_allow_html=True)
 
 left, right = st.columns([1.05, 1], gap="large")
 with left:

@@ -4,10 +4,10 @@ enableStaticServing = true
 
 [theme]
 base = "light"
-primaryColor = "#E8998D"
+primaryColor = "#124796"
 backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#FFF7F5"
-textColor = "#3A3A3A"
+secondaryBackgroundColor = "#F2F6FA"
+textColor = "#14253D"
 font = "sans serif"
 
 [client]

@@ -24,3 +24,6 @@ static/*.glb
 .idea/
 .DS_Store
 Thumbs.db
+
+# Logo de la entidad: marca de un tercero, no se publica en el repositorio
+static/logo_banco.*
